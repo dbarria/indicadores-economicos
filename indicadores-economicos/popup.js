@@ -8,14 +8,9 @@
  *
  * @type {string}
  */
-var QUERY = 'kittens';
 
 var indexGenerator = {
   /**
-   * Flickr URL that will give us lots and lots of whatever we're looking for.
-   *
-   * See http://www.flickr.com/services/api/flickr.photos.search.html for
-   * details about the construction of this URL.
    *
    * @type {string}
    * @private
@@ -41,19 +36,25 @@ var indexGenerator = {
     // reqDOLAR.send(null);
 
     var req;
-    var loadedRequests=[]
+
     for(var i=0;i<this.queries.length;i++){
+      name=this.queries[i].name
+      tr=document.createElement('tr');
+      tr.setAttribute("id",name)
+      tr.innerHTML="<td>" + name + "</td><td>:</td><td id=\""+ name+"_value\"> <img src=\"ajax-loader.gif\"></img></td>"
+      document.getElementById("indicadores-table").appendChild(tr);
+    }
+
+    for(var i=0;i<this.queries.length;i++){
+      name=this.queries[i].name
       req = new XMLHttpRequest();
       //false sync, true async
-      req.open("GET", this.queries[i].request, false);
-      req.indexName=this.queries[i].name
+      req.open("GET", this.queries[i].request, true);
+      req.indexName=name
       req.onload = this.showIndexes.bind(req);
       req.send(null);    
-      loadedRequests.push(req) 
-    }
-    fecha=req.responseXML.querySelectorAll('Fecha')[0].textContent
-    document.getElementById("date").innerHTML=fecha
 
+    }
     // reqUF = new XMLHttpRequest();
     // reqUF.open("GET", this.queries[this.queries.length].request, true);
     // loadedRequests.push(reqUF) 
@@ -76,11 +77,13 @@ var indexGenerator = {
     valor=e.target.responseXML.querySelectorAll('Valor')[0].textContent
     fecha=e.target.responseXML.querySelectorAll('Fecha')[0].textContent
 
-    content=document.createElement('div');
-    content.innerHTML="<h2> " + this.indexName+ ": " + valor + "</h2>"
 
-    document.getElementById("indicadores").appendChild(content);
+    tr=document.getElementById(this.indexName+"_value");
+    tr.innerHTML = valor
 
+
+    fecha=e.target.responseXML.querySelectorAll('Fecha')[0].textContent
+    document.getElementById("date").innerHTML=fecha 
     //var kittens = e.target.responseXML.querySelectorAll('photo');
     // for (var i = 0; i < kittens.length; i++) {
     //   var img = document.createElement('img');
@@ -94,5 +97,5 @@ var indexGenerator = {
 
 // Run our kitten generation script as soon as the document's DOM is ready.
 document.addEventListener('DOMContentLoaded', function () {
-  indexGenerator.requestAll();
+    indexGenerator.requestAll();
 });

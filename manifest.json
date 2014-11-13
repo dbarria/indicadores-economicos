@@ -1,0 +1,15 @@
+{
+  "manifest_version": 2,
+
+  "name": "Indicadores Económicos Chile",
+  "description": "Esta extensión despliega los principales indicadores Económicos para Chile: UF, Dólar, EURO, UTM, IPC. Los valores se obtienen desde la API v3 de la Superintendencia de Bancos e intituciones Financieras de Chile.",
+  "version": "0.1",
+
+  "browser_action": {
+    "default_icon": "icono1.png",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "https://secure.flickr.com/"
+  ]
+}

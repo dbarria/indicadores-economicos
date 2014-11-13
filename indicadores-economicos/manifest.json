@@ -2,7 +2,7 @@
   "manifest_version": 2,
 
   "name": "Indicadores Económicos de Chile",
-  "description": "Muestra indicadores Económicos para Chile: UF, Dólar, EURO, UTM, IPC. Los valores se obtienen desde la API v3 de la SBIF.",
+  "description": "Indicadores Económicos para Chile: UF, Dólar, EURO, UTM, IPC, obtenidos desde SBIF. Hecho a la hora de almuerzo por @danielbarria",
   "version": "0.1.2",
 
   "browser_action": {

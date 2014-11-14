@@ -39,9 +39,12 @@ var indexGenerator = {
     tr=document.getElementById(this.indexName+"_value");
     tr.innerHTML = valor
 
-
-    fecha=e.target.responseXML.querySelectorAll('Fecha')[0].textContent
-    document.getElementById("date").innerHTML=fecha 
+    if (this.indexName=="UF"){
+      fecha=e.target.responseXML.querySelectorAll('Fecha')[0].textContent
+      fecha=fecha.split('-');
+      fecha=fecha[2] + "/" + fecha[1] + "/" + fecha[0]
+      document.getElementById("date").innerHTML=fecha 
+    }
   },
 
 };

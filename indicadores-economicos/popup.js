@@ -7,17 +7,21 @@ var indexGenerator = {
     {name : "IPC", request: 'http://api.sbif.cl/api-sbifv3/recursos_api/ipc?apikey=eab15edac5eae38bc464eeac2b09a916da42b447&formato=xml'},
    ],
 
-  requestAll: function() {
-
-    var req;
-
+  createBaseElements: function(){
     for(var i=0;i<this.queries.length;i++){
       name=this.queries[i].name
       tr=document.createElement('tr');
       tr.setAttribute("id",name)
       tr.innerHTML="<td>" + name + "</td><td>:</td><td id=\""+ name+"_value\"> <img src=\"ajax-loader.gif\"></img></td><td id=\""+ name+"_button_td\"><button>Copiar</button><span style=\"display:none;\">¡Copiado!</span></td>"
       document.getElementById("indicadores-table").appendChild(tr);
-    }
+    }    
+  },
+
+  requestAll: function() {
+
+    var req;
+    
+    this.createBaseElements();
 
     for(var i=0;i<this.queries.length;i++){
       name=this.queries[i].name
@@ -51,34 +55,77 @@ var indexGenerator = {
       }.bind(this), 1000);
 
   },
-  showIndexes: function (e) {
-
-    valor=e.target.responseXML.querySelectorAll('Valor')[0].textContent
-    fecha=e.target.responseXML.querySelectorAll('Fecha')[0].textContent
-
-
-    tr=document.getElementById(this.indexName+"_value");
+  setValues: function(valor, fecha, index){
+    //console.log(index);
+    tr=document.getElementById(index+"_value");
     tr.innerHTML = valor
 
-    button_td=document.getElementById(this.indexName+"_button_td");
+    button_td=document.getElementById(index+"_button_td");
     button=button_td.firstChild
     button.setAttribute('value', valor)
 
-
     button.addEventListener('click',function(e){
-      this.callerObject.copyCopy(e.target);
+      this.copyCopy(e.target);
     }.bind(this),false);
-
-    if (this.indexName=="UF"){
-      fecha=e.target.responseXML.querySelectorAll('Fecha')[0].textContent
-      fecha=fecha.split('-');
-      fecha=fecha[2] + "/" + fecha[1] + "/" + fecha[0]
+    if (index=="UF"){
       document.getElementById("date").innerHTML=fecha 
-    }
+    }    
+
   },
+  showIndexes: function (e) {
+    valor=e.target.responseXML.querySelectorAll('Valor')[0].textContent
+    fecha=e.target.responseXML.querySelectorAll('Fecha')[0].textContent
+    fecha=fecha.split('-');
+    fecha=fecha[2] + "/" + fecha[1] + "/" + fecha[0]
+    
+    var index=this.indexName
+    var_asd="" + index
+    var obj = {}
+    obj[index]=valor
+    chrome.storage.local.set(obj)
+    this.callerObject.setValues(valor, fecha, index)
+    
+  },
+  requestFromLocalAll: function(last_date_updated){
+      this.createBaseElements();
+      var strings=[]
+      fecha=last_date_updated
+      
+
+      for(var i=0;i<this.queries.length;i++){
+        index=this.queries[i].name
+        strings.push(index)                
+      }
+      chrome.storage.local.get(strings, function(result){
+        for(var key in result) {
+          valor= result[key];
+          this.setValues(valor, fecha, key)
+        }        
+      }.bind(this))       
+
+  },
+  checkStorage: function(){
+    chrome.storage.local.get("last_date_updated", function(result){
+      last_date_updated=result.last_date_updated  
+
+      d= new Date();
+      current_date=d.getDay()  + "-"+ d.getMonth() + "-" + d.getFullYear();
+
+      if (last_date_updated && last_date_updated==current_date){
+        //console.log("local")
+        this.requestFromLocalAll(last_date_updated);
+
+      }else{
+        //console.log("remote")
+        chrome.storage.local.set( {"last_date_updated" : current_date} )
+        this.requestAll();
+      }
+
+    }.bind(this))
+  }
 
 };
 
 document.addEventListener('DOMContentLoaded', function () {
-    indexGenerator.requestAll();
+    indexGenerator.checkStorage();
 });

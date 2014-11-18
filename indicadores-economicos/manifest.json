@@ -11,5 +11,8 @@
   },
   "author": "Daniel Barria",
   "short_name": "IndicadoresChile",
-  "homepage_url": "http://www.ideauno.com"
+  "homepage_url": "http://www.ideauno.com",
+  "permissions": [
+      "storage"
+    ]
 }

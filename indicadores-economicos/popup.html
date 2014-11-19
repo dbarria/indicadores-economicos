@@ -5,26 +5,38 @@
     <meta charset="utf-8">
     <style>
       body {
-        min-width: 330px;
+        width: 390px;
         overflow-x: hidden;
         background-color: #f8f8f8;
       }
       #indicadores table{
         font-size: 1.5em;
         font-weight: bold;
+        table-layout:fixed;
+        word-wrap:break-word
      
       }
       tr td:first-child{
         width:100px;
       }
-      tr td:nth-child(3){
-        width:110px;
+      tr td:nth-child(5){
+        width:80px;
       }
-      tr td:nth-child(4){
+      tr td:nth-child(4), tr td:nth-child(6){
         font-size: 0.9em;
+        width:68px;
+        overflow: hidden;
+        word-break: break-word;
       }
+      .copiado{
+        font-size: 0.8em;
+      }
+
+      tr td:nth-child(3){
+        width:80px;
+      }      
       tr td:first-child + td{
-        width:px;
+        width:10px;
       }
       #indicadores label{
 
@@ -35,14 +47,30 @@
       footer{
         font-size: 0.9em;
       }
+      #permisos{
+        font-size: 1.5em;
+      }
+      #permisos-container{
+        width: 100%;
+        text-align:center;
+        margin-bottom: 30px;
+      }
     </style>
 
     <script src="popup.js"></script>
   </head>
   <body>
     <h1> Indicadores Económicos</h1>
+
+    <div style="display:none;" id="permisos-container"><button id="permisos" >Activar nuevos permisos!!</button></div>
     <div id="indicadores">
       <table id ="indicadores-table">
+      <tr id="convertir">
+        <td>Convertir</td>
+        <td></td>
+        <td><input id="value_to_convert" type="text"></td>
+        <td></td>
+      </tr>
       </table>
     </div>
     <footer>

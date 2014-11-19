@@ -1,3 +1,6 @@
+Number.prototype.round = function(places) {
+  return +(Math.round(this + "e+" + places)  + "e-" + places);
+}
 var indexGenerator = {
    queries:[
     {name : "UF", request: 'http://api.sbif.cl/api-sbifv3/recursos_api/uf?apikey=eab15edac5eae38bc464eeac2b09a916da42b447&formato=xml'},
@@ -12,12 +15,20 @@ var indexGenerator = {
       name=this.queries[i].name
       tr=document.createElement('tr');
       tr.setAttribute("id",name)
-      tr.innerHTML="<td>" + name + "</td><td>:</td><td id=\""+ name+"_value\"> <img src=\"ajax-loader.gif\"></img></td><td id=\""+ name+"_button_td\"><button>Copiar</button><span style=\"display:none;\">¡Copiado!</span></td>"
+      tr.innerHTML="<td>" + name + "</td><td>:</td><td id=\""+ name+"_value\"> <img src=\"ajax-loader.gif\"></img></td><td id=\""+ name+"_button_td\"><button>Copiar</button><span class=\"copiado\" style=\"display:none;\">Copiado!</span></td>"
       document.getElementById("indicadores-table").appendChild(tr);
     }    
   },
+  numberWithCommas: function(x){
+    var parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return parts.join(",");
+  },
   createBaseElementsForConversion: function(){
     if (document.getElementById(this.queries[0].name + "_converted_value")==null){
+      document.getElementsByTagName("body")[0].style.width="630px";
+      document.getElementById("convertir").appendChild(document.createElement('td'));
+      document.getElementById("convertir").appendChild(document.createElement('td'));
       var innerHTML;
       for(var i=0;i<this.queries.length;i++){
         name=this.queries[i].name
@@ -29,6 +40,11 @@ var indexGenerator = {
         td.setAttribute("id",name+"_converted_button")
         td.innerHTML="<button>Copiar</button><span style=\"display:none;\">¡Copiado!</span>"
         document.getElementById(name).appendChild(td);
+        button=document.getElementById(name + "_converted_button")
+        button.addEventListener('click',function(e){
+          this.copyCopy(e.target);
+        }.bind(this),false);
+
       }
     }    
   },
@@ -38,14 +54,23 @@ var indexGenerator = {
         var valor;
         var converted_value_element;
         var value_to_convert;
-        
+        var operation_result;
         for(var key in result) {
           valor= result[key];
           converted_value_element=document.getElementById(key + "_converted_value")
-          value_to_convert=document.getElementById("value_to_convert").value
+          
+          valor=valor.replace(".", "")
+          valor=valor.replace(",", ".")
+          value_to_convert=document.getElementById("value_to_convert").value.replace(".","").replace(",",".")
+          operation_result=parseFloat(valor) * parseFloat(value_to_convert )
+          operation_result=operation_result.round(3)
+          operation_result=this.numberWithCommas(operation_result);
+          //operation_result=operation_result.toString().replace(".", ",")
+          converted_value_element.innerHTML=operation_result
+          document.getElementById(key + "_converted_button").firstChild.setAttribute('value', operation_result)
+          
+         
 
-          converted_value_element.innerHTML=parseFloat(valor) * parseFloat(value_to_convert)
-          console.log(converted_value_element)
         }        
       }.bind(this)) 
   },  
@@ -78,12 +103,13 @@ var indexGenerator = {
   },
 
   copyCopy: function(button){
+      console.log(button)
       this.copyTextToClipboard(button.getAttribute('value').replace(".", ""))
       button.style.display="none";
-      button.parentNode.lastChild.style.display="block"
+      button.parentNode.lastChild.style.display="inline"
       setTimeout(function(){
         button.parentNode.lastChild.style.display="none"
-        button.style.display="block";
+        button.style.display="inline";
       }.bind(this), 1000);
 
   },
@@ -158,7 +184,8 @@ var indexGenerator = {
         
         this.requestAll();
       }
-
+      document.getElementById("value_to_convert").addEventListener("keypress", function(){indexGenerator.calcConversion()});
+      document.getElementById("value_to_convert").addEventListener("keyup", function(){indexGenerator.calcConversion()});
     }.bind(this))
   }
 
@@ -166,4 +193,5 @@ var indexGenerator = {
 
 document.addEventListener('DOMContentLoaded', function () {
     indexGenerator.checkStorage();
+
 });

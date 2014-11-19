@@ -38,7 +38,7 @@ var indexGenerator = {
 
         td=document.createElement('td');
         td.setAttribute("id",name+"_converted_button")
-        td.innerHTML="<button>Copiar</button><span style=\"display:none;\">¡Copiado!</span>"
+        td.innerHTML="<button>Copiar</button><span class=\"copiado\" style=\"display:none;\">Copiado!</span>"
         document.getElementById(name).appendChild(td);
         button=document.getElementById(name + "_converted_button")
         button.addEventListener('click',function(e){
@@ -50,6 +50,7 @@ var indexGenerator = {
   },
   calcConversion:function(){
     this.createBaseElementsForConversion();
+    document.getElementById("value_to_convert").value=document.getElementById("value_to_convert").value.replace(".", "");
       chrome.storage.local.get(this.arraySavedValues(), function(result){
         var valor;
         var converted_value_element;
@@ -61,7 +62,7 @@ var indexGenerator = {
           
           valor=valor.replace(".", "")
           valor=valor.replace(",", ".")
-          value_to_convert=document.getElementById("value_to_convert").value.replace(".","").replace(",",".")
+          value_to_convert=document.getElementById("value_to_convert").value.replace(",",".")
           operation_result=parseFloat(valor) * parseFloat(value_to_convert )
           operation_result=operation_result.round(3)
           operation_result=this.numberWithCommas(operation_result);

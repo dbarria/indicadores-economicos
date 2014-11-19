@@ -16,7 +16,39 @@ var indexGenerator = {
       document.getElementById("indicadores-table").appendChild(tr);
     }    
   },
+  createBaseElementsForConversion: function(){
+    if (document.getElementById(this.queries[0].name + "_converted_value")==null){
+      var innerHTML;
+      for(var i=0;i<this.queries.length;i++){
+        name=this.queries[i].name
+        td=document.createElement('td');
+        td.setAttribute("id",name+"_converted_value")
+        document.getElementById(name).appendChild(td);
 
+        td=document.createElement('td');
+        td.setAttribute("id",name+"_converted_button")
+        td.innerHTML="<button>Copiar</button><span style=\"display:none;\">¡Copiado!</span>"
+        document.getElementById(name).appendChild(td);
+      }
+    }    
+  },
+  calcConversion:function(){
+    this.createBaseElementsForConversion();
+      chrome.storage.local.get(this.arraySavedValues(), function(result){
+        var valor;
+        var converted_value_element;
+        var value_to_convert;
+        
+        for(var key in result) {
+          valor= result[key];
+          converted_value_element=document.getElementById(key + "_converted_value")
+          value_to_convert=document.getElementById("value_to_convert").value
+
+          converted_value_element.innerHTML=parseFloat(valor) * parseFloat(value_to_convert)
+          console.log(converted_value_element)
+        }        
+      }.bind(this)) 
+  },  
   requestAll: function() {
 
     var req;
@@ -83,20 +115,26 @@ var indexGenerator = {
     var obj = {}
     obj[index]=valor
     chrome.storage.local.set(obj)
+    if (index=="UF"){
+      chrome.storage.local.set( {"last_date_updated" : current_date} )
+    }
     this.callerObject.setValues(valor, fecha, index)
     
   },
+  arraySavedValues: function(){
+    var strings=[]
+    for(var i=0;i<this.queries.length;i++){
+      index=this.queries[i].name
+      strings.push(index)                
+    }
+    return strings;
+  },
   requestFromLocalAll: function(last_date_updated){
       this.createBaseElements();
-      var strings=[]
+
       fecha=last_date_updated
       
-
-      for(var i=0;i<this.queries.length;i++){
-        index=this.queries[i].name
-        strings.push(index)                
-      }
-      chrome.storage.local.get(strings, function(result){
+      chrome.storage.local.get(this.arraySavedValues(), function(result){
         for(var key in result) {
           valor= result[key];
           this.setValues(valor, fecha, key)
@@ -117,7 +155,7 @@ var indexGenerator = {
 
       }else{
         //console.log("remote")
-        chrome.storage.local.set( {"last_date_updated" : current_date} )
+        
         this.requestAll();
       }
 

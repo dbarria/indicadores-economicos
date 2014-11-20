@@ -26,7 +26,7 @@ var indexGenerator = {
   },
   createBaseElementsForConversion: function(){
     if (document.getElementById(this.queries[0].name + "_converted_value")==null){
-      document.getElementsByTagName("body")[0].style.width="630px";
+      document.getElementsByTagName("body")[0].style.width="650px";
       document.getElementById("convertir").appendChild(document.createElement('td'));
       document.getElementById("convertir").appendChild(document.createElement('td'));
       var innerHTML;
@@ -184,8 +184,17 @@ var indexGenerator = {
         
         this.requestAll();
       }
-      document.getElementById("value_to_convert").addEventListener("keypress", function(){indexGenerator.calcConversion()});
-      //document.getElementById("value_to_convert").addEventListener("keyup", function(){indexGenerator.calcConversion()});
+      document.getElementById("value_to_convert").addEventListener("keypress", function(){
+        if(window.getSelection().toString() ==""){
+          indexGenerator.calcConversion()
+        }
+      });
+        document.getElementById("value_to_convert").addEventListener("keydown", function(e){
+          console.log(e)
+          if(e.keyCode==8 && window.getSelection().toString() ==""){
+            indexGenerator.calcConversion()
+          }
+        });
     }.bind(this))
   }
 

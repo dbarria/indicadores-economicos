@@ -173,9 +173,8 @@ var indexGenerator = {
     chrome.storage.local.get("last_date_updated", function(result){
       last_date_updated=result.last_date_updated  
 
-      d= new Date();
-      current_date=d.getDay()  + "-"+ d.getMonth() + "-" + d.getFullYear();
-
+      var d= new Date();
+      current_date=d.getDate()  + "-"+ d.getMonth() + "-" + d.getFullYear();
       if (last_date_updated && last_date_updated==current_date){
         //console.log("local")
         this.requestFromLocalAll(last_date_updated);

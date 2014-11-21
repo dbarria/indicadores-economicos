@@ -3,7 +3,7 @@
 
   "name": "Indicadores Económicos de Chile",
   "description": "¡La más rápida del oeste! Muestra indicadores Económicos para Chile: UF, Dólar, EURO, UTM, IPC. Los valores se obtienen de la SBIF.",
-  "version": "0.3.2",
+  "version": "0.3.3",
 
   "browser_action": {
     "default_icon": "icono1.png",

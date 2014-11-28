@@ -50,7 +50,7 @@ var indexGenerator = {
   },
   calcConversion:function(){
     this.createBaseElementsForConversion();
-    document.getElementById("value_to_convert").value=document.getElementById("value_to_convert").value.replace(".", "");
+    document.getElementById("value_to_convert").value=document.getElementById("value_to_convert").value.replace(".", ",");
       chrome.storage.local.get(this.arraySavedValues(), function(result){
         var valor;
         var converted_value_element;
@@ -65,8 +65,14 @@ var indexGenerator = {
           value_to_convert=document.getElementById("value_to_convert").value.replace(",",".")
           operation_result=parseFloat(valor) * parseFloat(value_to_convert )
           operation_result=operation_result.round(3)
+          if(isNaN(operation_result)){
+
+            operation_result="";
+          }
+
           operation_result=this.numberWithCommas(operation_result);
           //operation_result=operation_result.toString().replace(".", ",")
+
           converted_value_element.innerHTML=operation_result
           document.getElementById(key + "_converted_button").firstChild.setAttribute('value', operation_result)
           
@@ -104,8 +110,8 @@ var indexGenerator = {
   },
 
   copyCopy: function(button){
-      console.log(button)
-      this.copyTextToClipboard(button.getAttribute('value').replace(".", ""))
+      //console.log(button)
+      this.copyTextToClipboard(button.getAttribute('value').replace(/\./g, ""))
       button.style.display="none";
       button.parentNode.lastChild.style.display="inline"
       setTimeout(function(){
@@ -191,7 +197,7 @@ var indexGenerator = {
         }
       });
         document.getElementById("value_to_convert").addEventListener("keydown", function(e){
-          console.log(e)
+          //console.log(e)
           if(e.keyCode==8 && window.getSelection().toString() ==""){
             indexGenerator.calcConversion()
           }
@@ -201,7 +207,19 @@ var indexGenerator = {
 
 };
 
+
 document.addEventListener('DOMContentLoaded', function () {
     indexGenerator.checkStorage();
-
+    document.getElementById("value_to_convert").focus();
+    $('#value_to_convert').calculator({
+      showOn: 'opbutton', 
+      buttonImageOnly: true, 
+      buttonImage: 'img/calculator.png',
+      onOpen: function() { 
+        document.getElementsByTagName("body")[0].style.width="650px";
+      },
+       onClose: function(value, inst) { 
+        indexGenerator.calcConversion()
+      }
+    });
 });

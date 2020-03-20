@@ -3,11 +3,11 @@ Number.prototype.round = function(places) {
 }
 var indexGenerator = {
    queries:[
-    {name : "UF", request: 'http://api.sbif.cl/api-sbifv3/recursos_api/uf?apikey=eab15edac5eae38bc464eeac2b09a916da42b447&formato=xml'},
-    {name : "DOLAR", request: 'http://api.sbif.cl/api-sbifv3/recursos_api/dolar?apikey=eab15edac5eae38bc464eeac2b09a916da42b447&formato=xml'},
-    {name : "EURO", request: 'http://api.sbif.cl/api-sbifv3/recursos_api/euro?apikey=eab15edac5eae38bc464eeac2b09a916da42b447&formato=xml'},
-    {name : "UTM", request: 'http://api.sbif.cl/api-sbifv3/recursos_api/utm?apikey=eab15edac5eae38bc464eeac2b09a916da42b447&formato=xml'},
-    {name : "IPC", request: 'http://api.sbif.cl/api-sbifv3/recursos_api/ipc?apikey=eab15edac5eae38bc464eeac2b09a916da42b447&formato=xml'},
+    {name : "UF", request: 'https://api.sbif.cl/api-sbifv3/recursos_api/uf?apikey=eab15edac5eae38bc464eeac2b09a916da42b447&formato=xml'},
+    {name : "DOLAR", request: 'https://api.sbif.cl/api-sbifv3/recursos_api/dolar?apikey=eab15edac5eae38bc464eeac2b09a916da42b447&formato=xml'},
+    {name : "EURO", request: 'https://api.sbif.cl/api-sbifv3/recursos_api/euro?apikey=eab15edac5eae38bc464eeac2b09a916da42b447&formato=xml'},
+    {name : "UTM", request: 'https://api.sbif.cl/api-sbifv3/recursos_api/utm?apikey=eab15edac5eae38bc464eeac2b09a916da42b447&formato=xml'},
+    {name : "IPC", request: 'https://api.sbif.cl/api-sbifv3/recursos_api/ipc?apikey=eab15edac5eae38bc464eeac2b09a916da42b447&formato=xml'},
    ],
 
   createBaseElements: function(){
@@ -17,7 +17,7 @@ var indexGenerator = {
       tr.setAttribute("id",name)
       tr.innerHTML="<td>" + name + "</td><td>:</td><td id=\""+ name+"_value\"> <img src=\"ajax-loader.gif\"></img></td><td id=\""+ name+"_button_td\"><button>Copiar</button><span class=\"copiado\" style=\"display:none;\">Copiado!</span></td>"
       document.getElementById("indicadores-table").appendChild(tr);
-    }    
+    }
   },
   numberWithCommas: function(x){
     var parts = x.toString().split(".");
@@ -46,7 +46,7 @@ var indexGenerator = {
         }.bind(this),false);
 
       }
-    }    
+    }
   },
   calcConversion:function(){
     this.createBaseElementsForConversion();
@@ -59,7 +59,7 @@ var indexGenerator = {
         for(var key in result) {
           valor= result[key];
           converted_value_element=document.getElementById(key + "_converted_value")
-          
+
           valor=valor.replace(".", "")
           valor=valor.replace(",", ".")
           value_to_convert=document.getElementById("value_to_convert").value.replace(",",".")
@@ -75,16 +75,16 @@ var indexGenerator = {
 
           converted_value_element.innerHTML=operation_result
           document.getElementById(key + "_converted_button").firstChild.setAttribute('value', operation_result)
-          
-         
 
-        }        
-      }.bind(this)) 
-  },  
+
+
+        }
+      }.bind(this))
+  },
   requestAll: function() {
 
     var req;
-    
+
     this.createBaseElements();
 
     for(var i=0;i<this.queries.length;i++){
@@ -93,8 +93,8 @@ var indexGenerator = {
       req.open("GET", this.queries[i].request, true);
       req.indexName=name
       req.callerObject=this
-      req.onload = this.showIndexes.bind(req);
-      req.send(null);    
+      req.onreadystatechange = this.showIndexes.bind(req);
+      req.send(null);
 
     }
   },
@@ -133,62 +133,64 @@ var indexGenerator = {
       this.copyCopy(e.target);
     }.bind(this),false);
     if (index=="UF"){
-      document.getElementById("date").innerHTML=fecha 
-    }    
+      document.getElementById("date").innerHTML=fecha
+    }
 
   },
   showIndexes: function (e) {
-    valor=e.target.responseXML.querySelectorAll('Valor')[0].textContent
-    fecha=e.target.responseXML.querySelectorAll('Fecha')[0].textContent
-    fecha=fecha.split('-');
-    fecha=fecha[2] + "/" + fecha[1] + "/" + fecha[0]
-    
-    var index=this.indexName
-    var_asd="" + index
-    var obj = {}
-    obj[index]=valor
-    chrome.storage.local.set(obj)
-    if (index=="UF"){
-      chrome.storage.local.set( {"last_date_updated" : current_date} )
+    if (this.readyState == 4){
+      valor=e.target.responseXML.querySelectorAll('Valor')[0].textContent
+      fecha=e.target.responseXML.querySelectorAll('Fecha')[0].textContent
+      fecha=fecha.split('-');
+      fecha=fecha[2] + "/" + fecha[1] + "/" + fecha[0]
+
+      var index=this.indexName
+      var_asd="" + index
+      var obj = {}
+      obj[index]=valor
+      chrome.storage.local.set(obj)
+      if (index=="UF"){
+        chrome.storage.local.set( {"last_date_updated" : current_date} )
+      }
+      this.callerObject.setValues(valor, fecha, index)
     }
-    this.callerObject.setValues(valor, fecha, index)
-    
+
   },
   arraySavedValues: function(){
     var strings=[]
     for(var i=0;i<this.queries.length;i++){
       index=this.queries[i].name
-      strings.push(index)                
+      strings.push(index)
     }
     return strings;
   },
   requestFromLocalAll: function(last_date_updated){
       this.createBaseElements();
 
-      fecha=last_date_updated
-      
+      fecha = last_date_updated
+
       chrome.storage.local.get(this.arraySavedValues(), function(result){
         for(var key in result) {
-          valor= result[key];
+          valor = result[key];
           this.setValues(valor, fecha, key)
-        }        
-      }.bind(this))       
+        }
+      }.bind(this))
 
   },
   checkStorage: function(){
     chrome.storage.local.get("last_date_updated", function(result){
-      last_date_updated=result.last_date_updated  
+      last_date_updated=result.last_date_updated
       var month;
       var d= new Date();
       month=d.getMonth()+1;
       current_date=d.getDate()  + "-"+ month + "-" + d.getFullYear();
-      if (last_date_updated && last_date_updated==current_date){
+      if (last_date_updated && last_date_updated == current_date){
         //console.log("local")
         this.requestFromLocalAll(last_date_updated);
 
       }else{
         //console.log("remote")
-        
+
         this.requestAll();
       }
       document.getElementById("value_to_convert").addEventListener("keypress", function(){
@@ -212,13 +214,13 @@ document.addEventListener('DOMContentLoaded', function () {
     indexGenerator.checkStorage();
     document.getElementById("value_to_convert").focus();
     $('#value_to_convert').calculator({
-      showOn: 'opbutton', 
-      buttonImageOnly: true, 
+      showOn: 'opbutton',
+      buttonImageOnly: true,
       buttonImage: 'img/calculator.png',
-      onOpen: function() { 
+      onOpen: function() {
         document.getElementsByTagName("body")[0].style.width="650px";
       },
-       onClose: function(value, inst) { 
+       onClose: function(value, inst) {
         indexGenerator.calcConversion()
       }
     });
